@@ -56,6 +56,7 @@ switch ($method) {
         $input['id'] = $newId;
         $alertes[$newId] = $input;
         echo json_encode([
+            "success" => true,
             "message" => "Alerte créée",
             "data" => $alertes[$newId]
         ], JSON_PRETTY_PRINT);
@@ -65,31 +66,32 @@ switch ($method) {
         if ($id !== null && isset($alertes[$id])) {
             $alertes[$id] = array_merge($alertes[$id], $input);
             echo json_encode([
+                "success" => true,
                 "message" => "Alerte mise à jour",
                 "data" => $alertes[$id]
             ], JSON_PRETTY_PRINT);
         } else {
             http_response_code(404);
-            echo json_encode(["error" => "Alerte à mettre à jour introuvable"]);
+            echo json_encode([
+                "success" => false,
+                "message" => "Alerte à mettre à jour introuvable"
+            ]);
         }
         break;
 
     case 'DELETE':
         if ($id !== null && isset($alertes[$id])) {
             unset($alertes[$id]);
-            echo json_encode(["message" => "Alerte supprimée"]);
+            echo json_encode([
+                "success" => true,
+                "message" => "Alerte supprimée"
+            ]);
         } else {
             http_response_code(404);
-            echo json_encode(["error" => "Alerte à supprimer introuvable"]);
+            echo json_encode([
+                "success" => false,
+                "message" => "Alerte à supprimer introuvable"
+            ]);
         }
-        break;
-
-    case 'OPTIONS':
-        http_response_code(204);
-        break;
-
-    default:
-        http_response_code(405);
-        echo json_encode(["error" => "Méthode non autorisée"]);
         break;
 }
