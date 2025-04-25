@@ -33,12 +33,21 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 switch ($method) {
     case 'GET':
         if ($id !== null && isset($alertes[$id])) {
-            echo json_encode($alertes[$id], JSON_PRETTY_PRINT);
+            echo json_encode([
+                "success" => true,
+                "alertes" => [$alertes[$id]]
+            ], JSON_PRETTY_PRINT);
         } elseif ($id !== null) {
             http_response_code(404);
-            echo json_encode(["error" => "Alerte non trouvée"]);
+            echo json_encode([
+                "success" => false,
+                "message" => "Alerte non trouvée"
+            ]);
         } else {
-            echo json_encode(array_values($alertes), JSON_PRETTY_PRINT);
+            echo json_encode([
+                "success" => true,
+                "alertes" => array_values($alertes)
+            ], JSON_PRETTY_PRINT);
         }
         break;
 
@@ -84,4 +93,3 @@ switch ($method) {
         echo json_encode(["error" => "Méthode non autorisée"]);
         break;
 }
-?>
