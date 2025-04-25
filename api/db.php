@@ -1,17 +1,22 @@
 <?php
-$host = getenv('DB_HOST');
-$user = getenv('DB_USER');
-$pass = getenv('DB_PASS');
-$dbname = getenv('DB_NAME');
+$config = parse_ini_file('config.ini', true);
 
+$host = $config['database']['host'];
+$user = $config['database']['user'];
+$pass = $config['database']['pass'];
+$dbname = $config['database']['name'];
+
+// Connexion MySQL
 $conn = new mysqli($host, $user, $pass, $dbname);
 
+// Vérification de la connexion
 if ($conn->connect_error) {
     die(json_encode([
         "success" => false,
         "message" => "Échec de la connexion à la base de données : " . $conn->connect_error
     ]));
 }
+
 
 $createTableSQL = "
     CREATE TABLE IF NOT EXISTS alertes (
