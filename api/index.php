@@ -8,11 +8,11 @@ header('Content-Type: application/json');
 $jsonFile = 'alertes.json';
 
 // Fonction pour lire les alertes depuis le fichier JSON
-function readAlertes() {
+function readAlertes()
+{
     global $jsonFile;
-    
+
     if (!file_exists($jsonFile)) {
-        // Créer un fichier avec des données initiales si le fichier n'existe pas
         $initialData = [
             1 => [
                 "id" => 1,
@@ -33,17 +33,26 @@ function readAlertes() {
                 "fin" => "2023-10-05 15:00:00"
             ]
         ];
-        
+
         file_put_contents($jsonFile, json_encode($initialData, JSON_PRETTY_PRINT));
         return $initialData;
     }
-    
+
     $jsonContent = file_get_contents($jsonFile);
-    return json_decode($jsonContent, true);
+    $decoded = json_decode($jsonContent, true);
+
+    // ✅ Ajouter un fallback si le fichier est vide ou malformé
+    if (!is_array($decoded)) {
+        return [];
+    }
+
+    return $decoded;
 }
 
+
 // Fonction pour écrire les alertes dans le fichier JSON
-function writeAlertes($alertes) {
+function writeAlertes($alertes)
+{
     global $jsonFile;
     file_put_contents($jsonFile, json_encode($alertes, JSON_PRETTY_PRINT));
 }
@@ -57,6 +66,8 @@ $alertes = readAlertes();
 
 switch ($method) {
     case 'GET':
+        if (!is_array($alertes)) $alertes = [];
+
         if ($id !== null && isset($alertes[$id])) {
             echo json_encode([
                 "success" => true,
@@ -76,15 +87,16 @@ switch ($method) {
         }
         break;
 
+
     case 'POST':
         // Générer un nouvel ID (le plus grand ID actuel + 1)
         $newId = empty($alertes) ? 1 : max(array_keys($alertes)) + 1;
         $input['id'] = $newId;
         $alertes[$newId] = $input;
-        
+
         // Enregistrer les modifications dans le fichier JSON
         writeAlertes($alertes);
-        
+
         echo json_encode([
             "success" => true,
             "message" => "Alerte créée",
@@ -97,10 +109,10 @@ switch ($method) {
             // S'assurer que l'ID reste le même
             $input['id'] = $id;
             $alertes[$id] = array_merge($alertes[$id], $input);
-            
+
             // Enregistrer les modifications dans le fichier JSON
             writeAlertes($alertes);
-            
+
             echo json_encode([
                 "success" => true,
                 "message" => "Alerte mise à jour",
@@ -118,10 +130,10 @@ switch ($method) {
     case 'DELETE':
         if ($id !== null && isset($alertes[$id])) {
             unset($alertes[$id]);
-            
+
             // Enregistrer les modifications dans le fichier JSON
             writeAlertes($alertes);
-            
+
             echo json_encode([
                 "success" => true,
                 "message" => "Alerte supprimée"
@@ -147,4 +159,3 @@ switch ($method) {
         ]);
         break;
 }
-?>
